@@ -62,7 +62,7 @@ $ git push origin staging
 
 ```
 $ hk deploy staging
-Deploying ece5bdc4d6b495e1bd63ad87c1480700361e8dc6 on branch staging to app acme-staging
+Deploying ece5bdc4d6 from staging on acme-inc/acme to acme-staging
 Starting build... done
 Build ID: 1234abcd-1234-abcd-abef-00c0b657cf9a
 Building........ done
