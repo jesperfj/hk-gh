@@ -46,7 +46,8 @@ Access token stored in /Users/joe/.heroku/github
 Work on staging and push:
 
 ```
-$ git pull origin staging
+$ git fetch origin
+$ git checkout staging
 # write code and commit
 $ git add . && git commit
 # push to staging on github
