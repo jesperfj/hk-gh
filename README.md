@@ -1,10 +1,8 @@
 # Deploy Github repos to Heroku
 
-**To be used with experimental [hk]() Heroku CLI only.**
+A few hk plugins that let you deploy directly from Github to Heroku.
 
-Find here a few simple scripts that lets you deploy directly from Github to Heroku.
-
-The following is assumed:
+Assumptions:
 
 * You're using Github as your main collaborative space for development
 * You've got Heroku set up and you're using the new [hk CLI](https://github.com/heroku/hk)
