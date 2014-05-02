@@ -16,25 +16,23 @@ fi
 
 BRANCH=master
 
-while getopts :b: opt; do
+while getopts :b:a: opt; do
   case $opt in 
     b)
       BRANCH=$OPTARG
       ;;
     \?)
-      echo "Invalid option: $opt"
-      exit 1
+      # ignore unknown options
       ;;
   esac
 done
 shift $(($OPTIND - 1))
 BUILD_ID=$1
 
-
 HEROKUAPP=${HEROKUAPP:-$(git config --get branch.$BRANCH.heroku)}
 
 if [ -z "$BUILD_ID" ]; then
-  echo "Showing builds $BUILD_ID on $HEROKUAPP:"
+  echo "Builds on $HEROKUAPP:"
   hk api get /apps/$HEROKUAPP/builds | jq -r 'map("\(.id)\t\(.status)\t\(.user.email)\t\(.created_at)") | .[]'
 else
   printf "App:\t\t$HEROKUAPP\n"
