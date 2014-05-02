@@ -46,8 +46,8 @@ GITHUB_REPO=$(git config --get remote.origin.url | \
                   -e 's/\.git//' )
 
 VERSION=$(git rev-parse origin/$BRANCH)
-
-echo "Deploying $VERSION on branch $BRANCH in repo $GITHUB_REPO to app $HEROKUAPP"
+SHORT_VERSION=$(echo $VERSION | sed -e 's/^\(..........\).*$/\1/')
+echo "Deploying $SHORT_VERSION from $BRANCH in $GITHUB_REPO to $HEROKUAPP"
 echo -n "Starting build... "
 
 TAR_URL=$(curl -s -u "$TOKEN:x-oauth-basic" -w "%{redirect_url}" \
