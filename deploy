@@ -1,0 +1,81 @@
+#!/bin/bash
+
+function usage {
+  cat <<EOF
+deploy 1: deploys code from Github to Heroku apps
+
+Usage: hk deploy branch
+
+Example:
+
+    hk deploy
+    hk deploy my-branch
+EOF
+}
+
+if [ "$HKPLUGINMODE" = info ]; then
+  usage
+  exit 0
+fi
+
+if [ ! -e "$HOME/.heroku/github" ]; then
+  echo "No Github credentials. Log in with 'hk gh-login' first."
+  exit 1
+fi
+
+BRANCH=${1:-master}
+
+echo "Deploying branch $BRANCH..."
+
+TOKEN=$(cat $HOME/.heroku/github)
+
+HEROKU_APP=$(git config --get branch.$BRANCH.heroku)
+
+if [ -z "$HEROKU_APP" ]; then
+  echo "Branch $BRANCH is not mapped to any Heroku app. Point it to a Heroku app with"
+  echo
+  echo "  git config branch.$BRANCH.heroku <heroku-app-name>"
+  echo
+  exit 1
+fi
+
+GITHUB_REPO=$(git config --get remote.origin.url | sed -e 's/https:\/\/github.com\///' -e 's/git@github\.com://' -e 's/git:\/\/github\.com\///' -e 's/\.git//')
+
+VERSION=$(git rev-parse origin/$BRANCH)
+
+#echo "Branch: $BRANCH"
+#echo "Token: $TOKEN"
+#echo "Heroku app: $HEROKU_APP"
+#echo "Github repo: $GITHUB_REPO"
+
+curl -s -u "$TOKEN:x-oauth-basic" https://api.github.com/repos/$GITHUB_REPO/tarball/$BRANCH > tarball.tar.gz
+
+TAR_URL=$(curl -s -u "$TOKEN:x-oauth-basic" -w "%{redirect_url}" https://api.github.com/repos/$GITHUB_REPO/tarball/$BRANCH)
+
+#echo $TAR_URL
+
+START_BUILD=$(curl -s -n -X POST https://api.heroku.com/apps/$HEROKU_APP/builds \
+-H 'Accept: application/vnd.heroku+json; version=3' \
+-H "Content-Type: application/json" \
+-d "{\"source_blob\": { \"url\": \"$TAR_URL\", \"version\": \"$VERSION\"}}")
+
+BUILD_ID=$(echo $START_BUILD | jq -r .id)
+
+#echo $BUILD_ID
+
+BUILD_OUTPUT=""
+
+while true; do 
+  echo -n '.'
+  sleep 5
+  BUILD_OUTPUT=$(curl -s -n https://api.heroku.com/apps/$HEROKU_APP/builds/$BUILD_ID/result -H 'Accept: application/vnd.heroku+json; version=3')
+  if [ $(echo $BUILD_OUTPUT | jq -r .build.status) != "pending" ]; then
+    echo
+    echo $BUILD_OUTPUT | jq -r '.lines | map(.line) | reduce .[] as $item (""; . + $item)'
+    break
+  fi
+done
+
+
+exit 0
+

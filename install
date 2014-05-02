@@ -1,0 +1,12 @@
+#!/bin/bash
+
+FILES="deploy gh-login"
+
+command -v jq &> /dev/null || {
+  echo "Installation failed:"
+  echo "jq is required for these plugins to work. Install from http://stedolan.github.io/jq/"
+  exit 1
+}
+  
+cp -v $FILES /usr/local/lib/hk/plugin/
+chmod +x $FILES

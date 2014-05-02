@@ -1,0 +1,53 @@
+#!/bin/bash
+
+function usage {
+  cat <<EOF
+gh-login 1: authenticate with Github to deploy code
+
+Usage: hk gh-login
+
+Prompts for your Github username, password and OTP token and,
+if authentication is successful, stores an access token in
+\$HOME/.heroku/github
+
+EOF
+}
+
+if [ "$HKPLUGINMODE" = info ]; then
+  usage
+  exit 0
+fi
+
+echo -n "Github username: "
+read USERNAME
+echo -n "Github password (never stored): "
+read -s PASSWORD
+echo
+echo -n "2-factor code (leave empty if not using 2 factor): "
+read OTP
+
+if [ "$OTP" != "" ]; then
+  OTP_HEADER="X-Github-OTP: $OTP"
+else
+  OTP_HEADER=""
+fi
+
+ALL_TOKENS=$(curl -s -u $USERNAME:$PASSWORD -H "$OTP_HEADER" https://api.github.com/authorizations)
+
+# Expect array. If we get an object, it's probably an error
+if [ $(echo $ALL_TOKENS | jq -r 'type') == "object" ]; then
+  echo $ALL_TOKENS | jq -r .message
+  exit 1
+fi
+
+HEROKU_ENTRY=$(echo $ALL_TOKENS | jq 'map(select(.note=="Heroku"))')
+
+if [ $(echo $HEROKU_ENTRY | jq 'length') == "1" ]; then
+  echo $HEROKU_ENTRY | jq -r .[0].token > $HOME/.heroku/github
+else
+  NEW_ENTRY=$(curl -s -u $USERNAME:$PASSWORD -H "$OTP_HEADER" https://api.github.com/authorizations --data-binary '{"scopes": [ "repo" ], "note": "Heroku"}')
+  echo $NEW_ENTRY | jq -r .token > $HOME/.heroku/github
+fi
+
+echo "Access token stored in $HOME/.heroku/github"
+exit 0
