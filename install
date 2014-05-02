@@ -7,6 +7,15 @@ command -v jq &> /dev/null || {
   echo "jq is required for these plugins to work. Install from http://stedolan.github.io/jq/"
   exit 1
 }
-  
+
+HKPATH=${HKPATH:-/usr/local/lib/hk/plugin}
+
+test -e $HKPATH || mkdir $HKPATH
+
+test -d $HKPATH || { 
+  echo "$HKPATH is not a directory. Cannot install plugins"
+  exit 1
+}
+
 cp -v $FILES /usr/local/lib/hk/plugin/
 chmod +x $FILES
