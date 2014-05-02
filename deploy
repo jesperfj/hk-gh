@@ -37,11 +37,11 @@ if [ -z "$HEROKU_APP" ]; then
   exit 1
 fi
 
-GITHUB_REPO=$(git config --get remote.origin.url | sed -e 's/https:\/\/github.com\///' -e 's/git@github\.com://' -e 's/git:\/\/github\.com\///' -e 's/\.git//')
+GITHUB_REPO=$(git config --get remote.origin.url | sed -e 's/http:\/\/github.com\///' -e 's/https:\/\/github.com\///' -e 's/git@github\.com://' -e 's/git:\/\/github\.com\///' -e 's/\.git//')
 
 VERSION=$(git rev-parse origin/$BRANCH)
 
-echo "Deploying $VERSION on branch $BRANCH to app $HEROKU_APP"
+echo "Deploying $VERSION on branch $BRANCH in repo $GITHUB_REPO to app $HEROKU_APP"
 echo -n "Starting build... "
 
 TAR_URL=$(curl -s -u "$TOKEN:x-oauth-basic" -w "%{redirect_url}" https://api.github.com/repos/$GITHUB_REPO/tarball/$BRANCH)
