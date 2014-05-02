@@ -35,10 +35,10 @@ HEROKUAPP=${HEROKUAPP:-$(git config --get branch.$BRANCH.heroku)}
 
 if [ -z "$BUILD_ID" ]; then
   echo "Showing builds $BUILD_ID on $HEROKUAPP:"
-  exec hk api get /apps/$HEROKUAPP/builds | jq -r 'map("\(.id)\t\(.status)\t\(.user.email)\t\(.created_at)") | .[]'
+  hk api get /apps/$HEROKUAPP/builds | jq -r 'map("\(.id)\t\(.status)\t\(.user.email)\t\(.created_at)") | .[]'
 else
   printf "App:\t\t$HEROKUAPP\n"
-  exec hk api get /apps/$HEROKUAPP/builds/$BUILD_ID | jq -r '"Build id:\t\(.id)\nCreated at:\t\(.created_at)\nVersion:\t\(.source_blob.version)\nUser:\t\t\(.user.email)\nStatus:\t\t\(.status)\nSlug id:\t\(.slug.id)"' 
+  hk api get /apps/$HEROKUAPP/builds/$BUILD_ID | jq -r '"Build id:\t\(.id)\nCreated at:\t\(.created_at)\nVersion:\t\(.source_blob.version)\nUser:\t\t\(.user.email)\nStatus:\t\t\(.status)\nSlug id:\t\(.slug.id)"' 
   echo "Build output:"
-  exec hk api get /apps/$HEROKUAPP/builds/$BUILD_ID/result | jq -r '.lines | map(.line) | reduce .[] as $item (""; . + $item)'
+  hk api get /apps/$HEROKUAPP/builds/$BUILD_ID/result | jq -r '.lines | map(.line) | reduce .[] as $item (""; . + $item)'
 fi
