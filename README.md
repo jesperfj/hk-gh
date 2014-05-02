@@ -52,8 +52,6 @@ $ git checkout staging
 $ git add . && git commit
 # push to staging on github
 $ git push origin staging
-# deploy
-$ hk deploy staging
 ```
 
 ## Deploy
