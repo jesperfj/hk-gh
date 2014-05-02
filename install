@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILES="deploy gh-login"
+FILES="deploy gh-login show-build"
 
 command -v jq &> /dev/null || {
   echo "Installation failed:"
@@ -17,5 +17,9 @@ test -d $HKPATH || {
   exit 1
 }
 
-cp -v $FILES /usr/local/lib/hk/plugin/
-chmod +x $FILES
+echo "Installing plugins to $HKPATH:"
+for f in $FILES; do
+  cp $f $HKPATH/.
+  chmod +x $HKPATH/$f
+  echo "-------> $f"
+done
