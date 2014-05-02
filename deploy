@@ -25,8 +25,6 @@ fi
 
 BRANCH=${1:-master}
 
-echo "Deploying branch $BRANCH..."
-
 TOKEN=$(cat $HOME/.heroku/github)
 
 HEROKU_APP=$(git config --get branch.$BRANCH.heroku)
@@ -43,16 +41,10 @@ GITHUB_REPO=$(git config --get remote.origin.url | sed -e 's/https:\/\/github.co
 
 VERSION=$(git rev-parse origin/$BRANCH)
 
-#echo "Branch: $BRANCH"
-#echo "Token: $TOKEN"
-#echo "Heroku app: $HEROKU_APP"
-#echo "Github repo: $GITHUB_REPO"
-
-curl -s -u "$TOKEN:x-oauth-basic" https://api.github.com/repos/$GITHUB_REPO/tarball/$BRANCH > tarball.tar.gz
+echo "Deploying $VERSION on branch $BRANCH to app $HEROKU_APP"
+echo -n "Starting build... "
 
 TAR_URL=$(curl -s -u "$TOKEN:x-oauth-basic" -w "%{redirect_url}" https://api.github.com/repos/$GITHUB_REPO/tarball/$BRANCH)
-
-#echo $TAR_URL
 
 START_BUILD=$(curl -s -n -X POST https://api.heroku.com/apps/$HEROKU_APP/builds \
 -H 'Accept: application/vnd.heroku+json; version=3' \
@@ -61,7 +53,9 @@ START_BUILD=$(curl -s -n -X POST https://api.heroku.com/apps/$HEROKU_APP/builds 
 
 BUILD_ID=$(echo $START_BUILD | jq -r .id)
 
-#echo $BUILD_ID
+echo "done"
+echo "Build ID: $BUILD_ID"
+echo -n "Building"
 
 BUILD_OUTPUT=""
 
@@ -70,7 +64,7 @@ while true; do
   sleep 5
   BUILD_OUTPUT=$(curl -s -n https://api.heroku.com/apps/$HEROKU_APP/builds/$BUILD_ID/result -H 'Accept: application/vnd.heroku+json; version=3')
   if [ $(echo $BUILD_OUTPUT | jq -r .build.status) != "pending" ]; then
-    echo
+    echo " done"
     echo $BUILD_OUTPUT | jq -r '.lines | map(.line) | reduce .[] as $item (""; . + $item)'
     break
   fi
@@ -78,4 +72,3 @@ done
 
 
 exit 0
-

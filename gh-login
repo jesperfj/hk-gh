@@ -32,13 +32,16 @@ else
   OTP_HEADER=""
 fi
 
+echo -n "Authenticating... "
 ALL_TOKENS=$(curl -s -u $USERNAME:$PASSWORD -H "$OTP_HEADER" https://api.github.com/authorizations)
 
 # Expect array. If we get an object, it's probably an error
 if [ $(echo $ALL_TOKENS | jq -r 'type') == "object" ]; then
+  echo "failed"
   echo $ALL_TOKENS | jq -r .message
   exit 1
 fi
+echo "done"
 
 HEROKU_ENTRY=$(echo $ALL_TOKENS | jq 'map(select(.note=="Heroku"))')
 
