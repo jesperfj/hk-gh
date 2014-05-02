@@ -1,13 +1,16 @@
 # Deploy Github repos to Heroku
 
-A few hk plugins that let you deploy directly from Github to Heroku.
+A few [hk][1] plugins that let you deploy directly from Github to Heroku.
 
 Assumptions:
 
 * You're using Github as your main collaborative space for development
-* You've got Heroku set up and you're using the new [hk CLI](https://github.com/heroku/hk)
+* You've got Heroku set up and you're using the new [hk CLI][1]
 * You're in a project directory with the 'origin' remote pointing to your Github repo
-* You have a _recent version_ of jq installed. The scripts make use of the `reduce` function which is fairly new.
+* You have a _recent version_ of [jq][2] installed. The scripts make use of the `reduce` function which is fairly new.
+
+[1]: https://github.com/heroku/hk
+[2]: http://stedolan.github.io/jq/
 
 # Install
 
