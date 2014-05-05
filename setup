@@ -1,0 +1,104 @@
+#!/bin/bash
+
+function usage {
+  cat <<EOF
+setup 1: sets up a new Heroku app instance linked to a branch
+
+Usage: hk setup [-b branch] [app name]
+
+Example:
+
+    hk setup
+    hk setup -b my-topic-branch
+    hk setup my-app-name
+EOF
+}
+
+if [ "$HKPLUGINMODE" = info ]; then
+  usage
+  exit 0
+fi
+
+if [ ! -e "$HOME/.heroku/github" ]; then
+  echo "No Github credentials. Log in with 'hk gh-login' first."
+  exit 1
+fi
+
+while getopts :b: opt; do
+  case $opt in 
+    b)
+      BRANCH=$OPTARG
+      ;;
+    \?)
+      # ignore unknown options
+      ;;
+  esac
+done
+shift $(($OPTIND - 1))
+HEROKUAPP=$1
+
+BRANCH=${BRANCH:-$(git symbolic-ref --short -q HEAD)} || {
+  echo "Could not determine branch. Perhaps HEAD is detached?"
+  echo "You can set branch explicitly with -b option."
+  exit 1;
+}
+
+TOKEN=$(cat $HOME/.heroku/github)
+
+GITHUB_REPO=$(git config --get remote.origin.url | \
+              sed -e 's/http:\/\/github.com\///' \
+                  -e 's/https:\/\/github.com\///' \
+                  -e 's/git@github\.com://' \
+                  -e 's/git:\/\/github\.com\///' \
+                  -e 's/\.git//' )
+
+
+TAR_URL=$(curl -s -u "$TOKEN:x-oauth-basic" -w "%{redirect_url}" \
+          https://api.github.com/repos/$GITHUB_REPO/tarball/$BRANCH)
+
+START_SETUP=$(echo "{\"source_blob\": { \"url\": \"$TAR_URL\" }}" | hk api post /app-setups)
+
+SETUP_ID=$(echo $START_SETUP | jq -r .id)
+
+HAIKU_NAME=$(echo $START_SETUP | jq -r .app.name)
+
+echo "Haiku app name: $HAIKU_NAME"
+echo "Setup id: $SETUP_ID"
+echo -n "Setting up"
+
+while true; do 
+  echo -n '.'
+  sleep 5
+  SETUP_RESULT=$(hk api get /app-setups/$SETUP_ID)
+  STATUS=$(echo $SETUP_RESULT | jq -r .status)
+  if [ "$STATUS" != "pending" ]; then
+    if [ "$STATUS" == "succeeded" ]; then
+      echo " done"
+      echo $SETUP_RESULT
+      break
+    else
+      echo " failed"
+      echo $SETUP_RESULT | jq -r .failure_message
+      exit 1;
+    fi
+  fi
+done
+
+if [ -z "$HEROKUAPP" ]; then
+  if [ "$BRANCH" == "master" ]; then
+    # can't rename, so haiku name is the name
+    HEROKUAPP=$HAIKU_NAME
+  else
+    # set name to <master app name>-<branch name> 
+    HEROKUAPP="$(git config --get branch.master.heroku)-$BRANCH"
+    hk rename $HEROKUAPP -a $HAIKU_NAME
+    echo "Renamed app to $HEROKUAPP"
+  fi
+else
+  hk rename $HEROKUAPP -a $HAIKU_NAME
+  echo "Renamed app to $HEROKUAPP"
+fi
+
+git config branch.$BRANCH.heroku $HEROKUAPP
+
+exit 0
