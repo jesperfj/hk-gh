@@ -21,6 +21,9 @@ while getopts :b:a: opt; do
     b)
       BRANCH=$OPTARG
       ;;
+    a)
+      HEROKUAPP=$OPTARG
+      ;;
     \?)
       # ignore unknown options
       ;;
