@@ -4,12 +4,12 @@ function usage {
   cat <<EOF
 deploy 1: deploys code from Github to Heroku apps
 
-Usage: hk deploy branch
+Usage: hk deploy [-b branch]
 
 Example:
 
     hk deploy
-    hk deploy my-branch
+    hk deploy -b my-experiment
 EOF
 }
 
@@ -23,7 +23,22 @@ if [ ! -e "$HOME/.heroku/github" ]; then
   exit 1
 fi
 
-BRANCH=${1:-master}
+while getopts :b: opt; do
+  case $opt in 
+    b)
+      BRANCH=$OPTARG
+      ;;
+    \?)
+      # ignore unknown options
+      ;;
+  esac
+done
+
+BRANCH=${BRANCH:-$(git symbolic-ref --short -q HEAD)} || {
+  echo "Could not determine branch. Perhaps HEAD is detached?"
+  echo "You can set branch explicitly with -b option."
+  exit 1;
+}
 
 TOKEN=$(cat $HOME/.heroku/github)
 
