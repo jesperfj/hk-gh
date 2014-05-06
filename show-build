@@ -14,8 +14,6 @@ if [ "$HKPLUGINMODE" = info ]; then
   exit 0
 fi
 
-BRANCH=master
-
 while getopts :b:a: opt; do
   case $opt in 
     b)
@@ -31,6 +29,12 @@ while getopts :b:a: opt; do
 done
 shift $(($OPTIND - 1))
 BUILD_ID=$1
+
+BRANCH=${BRANCH:-$(git symbolic-ref --short -q HEAD)} || {
+  echo "Could not determine branch. Perhaps HEAD is detached?"
+  echo "You can set branch explicitly with -b option."
+  exit 1;
+}
 
 HEROKUAPP=${HEROKUAPP:-$(git config --get branch.$BRANCH.heroku)}
 
