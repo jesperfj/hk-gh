@@ -75,7 +75,7 @@ Deploying your own changes is dead simple from here. It follows the standard git
 Once your change is on Github, you can deploy with:
 
     $ hk deploy
-    Deploying e2a40d9411 from demo in roanak/node-todo to roanak-todo
+    Deploying e2a40d9411 from master in roanak/node-todo to roanak-todo
     Starting build... done
     Build id: 33726cf9-594c-4c21-bf72-46b1ebbc2733
     Building... done
