@@ -40,10 +40,11 @@ shift $(($OPTIND - 1))
 BRANCH=$1
 HEROKUAPP=$2
 
+
 if [ -z "$BRANCH" ]; then
   git config --get-regexp branch\..*\.heroku | sed -e 's/^branch\.\([^\.]*\)\.heroku \(.*\)$/\1 -> \2/' | column -t
 else
-  if $REMOVE; then
+  if [ ! -z "$REMOVE" ]; then
     # remove target
     HEROKUAPP=$(git config --get branch.$BRANCH.heroku)
     git config --unset branch.$BRANCH.heroku
