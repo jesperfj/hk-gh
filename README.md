@@ -2,7 +2,7 @@
 
 A few [hk][1] plugins that let you deploy directly from Github to Heroku. 
 
-This is a working prototype. It is not production quality code.
+This is a working prototype. The purpose is to demonstrate this kind of workflow.
 
 Assumptions:
 
