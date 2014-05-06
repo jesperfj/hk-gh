@@ -33,7 +33,7 @@ Authenticating... done
 Access token stored in /Users/roanak/.heroku/github
 ```
 
-## Hacking on or bootstrapping from sample code
+## Bootstrapping from sample code
 
 Nobody writes code from scratch anymore. When you decide to try out a new, promising framework or library, it comes with sample code that you can copy and run to get off the ground quickly. From there you will make the code your own, but it's a huge time saver to get some help with the basics.
 
