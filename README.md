@@ -41,7 +41,7 @@ When you've found a great sample app on Github which includes an app.json file y
 
 ### Fork the app
 
-Github makes this easy. For example, go ahead and [fork jesperfj/node-todo](https://github.com/jesperfj/node-todo/fork) (which is itself a fork of [scotch-io/node-todo](https://github.com/scotch-io/node-todo)
+Github makes this easy. For example, go ahead and [fork jesperfj/node-todo](https://github.com/jesperfj/node-todo/fork) (which is itself a fork of [scotch-io/node-todo](https://github.com/scotch-io/node-todo))
 
 ### Clone locally
 
