@@ -1,6 +1,8 @@
 # Deploy Github repos to Heroku
 
-A few [hk][1] plugins that let you deploy directly from Github to Heroku.
+A few [hk][1] plugins that let you deploy directly from Github to Heroku. 
+
+This is a working prototype. It is not production quality code.
 
 Assumptions:
 
