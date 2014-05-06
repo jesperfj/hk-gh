@@ -1,0 +1,60 @@
+#!/bin/bash
+
+function usage {
+  cat <<EOF
+target 1: target branches to heroku apps
+
+Usage: hk target [-d] [branch] [app name]
+
+use this command to manually manage how branches
+are targeted to Heroku apps. This command only
+manipulates local git config. It does not create
+or destroy Heroku apps.
+
+Example:
+
+    hk target
+    master       ->  acme-app
+    staging      ->  acme-app-staging
+    experiment1  ->  acme-app-experiment1
+
+EOF
+}
+
+if [ "$HKPLUGINMODE" = info ]; then
+  usage
+  exit 0
+fi
+
+while getopts :d opt; do
+  case $opt in 
+    d)
+      REMOVE=true
+      ;;
+    \?)
+      # ignore unknown options
+      ;;
+  esac
+done
+shift $(($OPTIND - 1))
+BRANCH=$1
+HEROKUAPP=$2
+
+if [ -z "$BRANCH" ]; then
+  git config --get-regexp branch\..*\.heroku | sed -e 's/^branch\.\([^\.]*\)\.heroku \(.*\)$/\1 -> \2/' | column -t
+else
+  if $REMOVE; then
+    # remove target
+    HEROKUAPP=$(git config --get branch.$BRANCH.heroku)
+    git config --unset branch.$BRANCH.heroku
+    echo "Branch $BRANCH no longer targeted to app $HEROKUAPP."
+    echo "Use 'hk destroy' to destroy the app if you don't need it anymore."
+  else
+    if [ -z "$HEROKUAPP" ]; then
+      git config --get branch.$BRANCH.heroku
+    else
+      # set up a new target
+      git config branch.$BRANCH.heroku $HEROKUAPP
+    fi
+  fi
+fi

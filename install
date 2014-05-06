@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILES="deploy gh-login show-build setup"
+FILES="deploy gh-login show-build setup target"
 
 command -v jq &> /dev/null || {
   echo "Installation failed:"
