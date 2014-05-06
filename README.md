@@ -20,6 +20,8 @@ Assumptions:
 
 # Usage
 
+NOTE: README needs to be updated to document new setup and target commands.
+
 ## Point branches at apps
 
 First step is to map your branches to Heroku apps. For example point `master` to your production app: `acme-prod`:
