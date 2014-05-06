@@ -52,5 +52,7 @@ else
   echo $NEW_ENTRY | jq -r .token > $HOME/.heroku/github
 fi
 
+chmod go-rw $HOME/.heroku/github
+
 echo "Access token stored in $HOME/.heroku/github"
 exit 0
